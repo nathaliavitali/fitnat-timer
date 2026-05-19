@@ -94,13 +94,17 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 .icon-btn-dark:active { transform: scale(0.9); }
 .bg-idle .icon-btn-dark, .bg-prepare .icon-btn-dark { background: rgba(0,0,0,0.06); color: var(--text); }
 
-.timer-bottom { background: #111110; color: #fff; padding: 15px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; border-radius: 16px 16px 0 0; margin-top: -10px; z-index: 20; position: relative; }
+.timer-bottom { background: #111110; color: #fff; padding: 10px 20px 16px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; flex-shrink: 0; border-radius: 16px 16px 0 0; margin-top: -10px; z-index: 20; position: relative; }
 .timer-stats { text-align: center; }
+/* Séries restantes → laranja */
 .timer-stats-val { font-size: 38px; font-family: var(--font-d); line-height: 1; color: var(--orange); }
-.timer-stats-val.blue { color: var(--blue); }
-.timer-stats-lbl { font-size: 10px; font-family: var(--font-b); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-top: 4px; }
+/* Exercícios restantes → branco com fundo ligeiramente destacado */
+.timer-stats-val.ex-val { color: #111110; background: #fff; border-radius: 8px; padding: 2px 10px; display: inline-block; }
+.timer-stats-lbl { font-size: 10px; font-family: var(--font-b); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-top: 6px; }
 
-.play-btn-massive { width: 72px; height: 72px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(232,69,10,0.3); transition: transform 0.1s; outline: 3px solid #111110; outline-offset: -3px; }
+/* Botão play centralizado com grid */
+.play-btn-wrap { display: flex; flex-direction: column; align-items: center; transform: translateY(-22px); }
+.play-btn-massive { width: 72px; height: 72px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(232,69,10,0.4); transition: transform 0.1s; outline: 4px solid #111110; outline-offset: 0; }
 .play-btn-massive:active { transform: scale(0.95); }
 .play-btn-label { display: block; text-align: center; color: var(--orange); font-family: var(--font-d); font-size: 15px; margin-top: 8px; letter-spacing: 1px; }
 
@@ -227,19 +231,19 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 
     <div class="timer-bottom">
       <div class="timer-stats">
-        <div id="stat-rounds" class="timer-stats-val blue">0</div>
+        <div id="stat-rounds" class="timer-stats-val">0</div>
         <div class="timer-stats-lbl" id="lbl-rondas-restantes">SÉRIES REST.</div>
       </div>
-      
-      <div style="display:flex; flex-direction:column; align-items:center; transform: translateY(-26px);">
+
+      <div class="play-btn-wrap">
         <button class="play-btn-massive" id="btn-start-massive" onclick="toggleTimer()">
           <svg id="ico-start-massive" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:32px;height:32px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </button>
         <span id="lbl-start-massive" class="play-btn-label">COMEÇAR</span>
       </div>
-      
+
       <div class="timer-stats">
-        <div id="stat-exercises" class="timer-stats-val">0</div>
+        <div id="stat-exercises" class="timer-stats-val ex-val">0</div>
         <div class="timer-stats-lbl" id="lbl-ciclos-restantes">EX. REST.</div>
       </div>
     </div>
