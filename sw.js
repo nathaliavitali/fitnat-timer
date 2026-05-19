@@ -1,5 +1,5 @@
 // FitNat Workouts Timer — Service Worker
-const CACHE = 'fitnat-timer-v1';
+const CACHE = 'fitnat-timer-v2';
 const ASSETS = [
   './',
   './index.html',
