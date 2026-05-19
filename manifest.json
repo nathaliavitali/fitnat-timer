@@ -1,0 +1,35 @@
+{
+  "name": "FitNat Workouts Timer",
+  "short_name": "FitNat Timer",
+  "description": "Temporizador de treino HIIT, Tabata, EMOM e AMRAP — FitNat by Nathalia Vitali",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#E8450A",
+  "background_color": "#F5F3F0",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
