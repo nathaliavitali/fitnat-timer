@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#E8450A">
+<meta name="theme-color" content="#111110">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FitNat Timer">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./favicon.png" type="image/png">
@@ -21,9 +21,9 @@
   --orange: #E8450A;
   --orange-dark: #C23608;
   --orange-dim: rgba(232,69,10,0.12);
-  --bg: #F5F3F0;
+  --bg: #F5F3F0; /* Creme FitNat */
   --card: #FFFFFF;
-  --text: #111110;
+  --text: #111110; /* Preto FitNat */
   --muted: #7A7872;
   --border: rgba(0,0,0,0.10);
   --border-med: rgba(0,0,0,0.16);
@@ -39,80 +39,77 @@
   --font-d: 'Bebas Neue', sans-serif;
   --font-b: 'DM Sans', sans-serif;
 }
-html,body { height:100%; }
+html,body { height:100%; overflow: hidden; background: #111110; }
 body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-height:100dvh; overscroll-behavior:none; }
-.app { max-width:430px; margin:0 auto; padding-bottom:72px; }
+.app { max-width:430px; margin:0 auto; height:100dvh; display:flex; flex-direction:column; position:relative; background: var(--bg); }
 
-/* ── Header ── */
-.header { padding:0.875rem 1.25rem 0.625rem; display:flex; align-items:center; justify-content:space-between; }
+/* ── Header (Dark Mode Premium) ── */
+.header { background: #111110; padding:0.875rem 1.25rem 0.625rem; display:flex; align-items:center; justify-content:space-between; z-index: 50; }
 .logo-wrap { display:flex; align-items:center; gap:10px; }
 .logo-svg-box { width:38px; height:38px; background:#111110; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .logo-text-wrap { line-height:1; }
-.logo-fitnat { font-family:var(--font-d); font-size:19px; letter-spacing:0.05em; color:var(--text); }
-.logo-sub { font-size:9px; color:var(--muted); font-weight:500; letter-spacing:0.08em; text-transform:uppercase; margin-top:1px; }
+.logo-fitnat { font-family:var(--font-d); font-size:19px; letter-spacing:0.05em; color:#fff; }
+.logo-sub { font-size:9px; color:rgba(255,255,255,0.6); font-weight:500; letter-spacing:0.08em; text-transform:uppercase; margin-top:1px; }
 
 /* lang switcher */
 .lang-sw { display:flex; gap:3px; }
-.lang-btn { padding:4px 8px; border-radius:6px; border:1.5px solid var(--border-med); background:transparent; font-family:var(--font-b); font-size:11px; font-weight:600; color:var(--muted); cursor:pointer; transition:all 0.12s; letter-spacing:0.03em; }
+.lang-btn { padding:4px 8px; border-radius:6px; border:1.5px solid rgba(255,255,255,0.2); background:transparent; font-family:var(--font-b); font-size:11px; font-weight:600; color:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.12s; letter-spacing:0.03em; }
 .lang-btn.active { background:var(--orange); border-color:var(--orange); color:#fff; }
 
 /* ── Nav ── */
-.nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:var(--card); border-top:1px solid var(--border); display:flex; z-index:100; padding-bottom:env(safe-area-inset-bottom,0); }
+.nav { position:absolute; bottom:0; left:0; width:100%; background:var(--card); border-top:1px solid var(--border); display:flex; z-index:100; padding-bottom:env(safe-area-inset-bottom,0); }
 .nav-btn { flex:1; padding:10px 6px 10px; border:none; background:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--muted); font-size:10px; font-weight:500; font-family:var(--font-b); letter-spacing:0.02em; transition:color 0.15s; }
 .nav-btn i { font-size:22px; }
 .nav-btn.active { color:var(--orange); }
 
 /* ── Screens ── */
-.screen { display:none; padding:0 1.25rem; }
+.screen { display:none; flex:1; overflow-y:auto; padding:0 1.25rem 80px; }
 .screen.active { display:block; }
 
-/* ── Pills ── */
-.pill-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; margin-bottom:1rem; scrollbar-width:none; }
+/* ── Novo Timer Split Layout ── */
+#screen-timer { padding:0; padding-bottom:60px; overflow:hidden; background: var(--bg); }
+#screen-timer.active { display:flex; flex-direction:column; }
+
+.timer-container { flex: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
+.phase-block { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; transition: background 0.3s, color 0.3s; position: relative; }
+.bg-idle, .bg-prepare { background-color: var(--bg); color: var(--text); }
+.bg-work { background-color: var(--orange); color: #fff; }
+.bg-rest { background-color: var(--blue); color: #fff; }
+.bg-interval { background-color: var(--amber); color: #fff; }
+.bg-done { background-color: var(--green); color: #fff; }
+
+.phase-title { font-family: var(--font-d); font-size: 11vw; letter-spacing: 2px; margin: 0; line-height: 1.1; text-transform: uppercase; }
+.timer-massive { font-family: var(--font-d); font-size: 38vw; line-height: 0.9; margin: 0; font-variant-numeric: tabular-nums; }
+.timer-massive.bip { animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+
+@media (min-width: 430px) {
+    .phase-title { font-size: 47px; }
+    .timer-massive { font-size: 160px; }
+    #phase-title-next { font-size: 26px !important; }
+    #time-next { font-size: 95px !important; }
+}
+
+.top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 10; }
+.icon-btn-dark { width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.15); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: all 0.2s; }
+.icon-btn-dark:active { transform: scale(0.9); }
+.bg-idle .icon-btn-dark, .bg-prepare .icon-btn-dark { background: rgba(0,0,0,0.06); color: var(--text); }
+
+.timer-bottom { background: #111110; color: #fff; padding: 15px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; border-radius: 16px 16px 0 0; margin-top: -10px; z-index: 20; position: relative; }
+.timer-stats { text-align: center; }
+.timer-stats-val { font-size: 38px; font-family: var(--font-d); line-height: 1; color: var(--orange); }
+.timer-stats-val.blue { color: var(--blue); }
+.timer-stats-lbl { font-size: 10px; font-family: var(--font-b); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-top: 4px; }
+
+.play-btn-massive { width: 72px; height: 72px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(232,69,10,0.3); transition: transform 0.1s; outline: 3px solid #111110; outline-offset: -3px; }
+.play-btn-massive:active { transform: scale(0.95); }
+.play-btn-label { display: block; text-align: center; color: var(--orange); font-family: var(--font-d); font-size: 15px; margin-top: 8px; letter-spacing: 1px; }
+
+/* ── UI Components para Config e Library ── */
+.pill-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; margin-bottom:1rem; scrollbar-width:none; margin-top:1rem; }
 .pill-tabs::-webkit-scrollbar { display:none; }
 .pill { padding:7px 16px; border-radius:20px; border:1.5px solid var(--border-med); background:var(--card); font-family:var(--font-b); font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; white-space:nowrap; transition:all 0.15s; }
 .pill.active { background:var(--orange); border-color:var(--orange); color:#fff; }
 
-/* ── Timer card ── */
-.timer-card { background:var(--card); border-radius:var(--radius); padding:1.25rem; margin-bottom:0.75rem; border:1px solid var(--border); position:relative; overflow:hidden; }
-.timer-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--orange); transition:background 0.3s; }
-.timer-card.ph-rest::before     { background:var(--blue); }
-.timer-card.ph-interval::before { background:var(--amber); }
-.timer-card.ph-done::before     { background:var(--green); }
-.timer-card.ph-prepare::before  { opacity:0.4; }
-
-.phase-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; }
-.phase-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; }
-.b-prepare  { background:var(--orange-dim); color:var(--orange); }
-.b-work     { background:var(--orange-dim); color:var(--orange); }
-.b-rest     { background:var(--blue-light); color:var(--blue); }
-.b-interval { background:var(--amber-light); color:var(--amber); }
-.b-done     { background:var(--green-light); color:var(--green); }
-.b-idle     { background:rgba(0,0,0,0.06); color:var(--muted); }
-
-.round-badge { font-size:12px; font-weight:500; color:var(--muted); }
-
-.big-time { font-family:var(--font-d); font-size:96px; line-height:1; letter-spacing:0.02em; color:var(--text); display:block; text-align:center; margin:0.25rem 0; font-variant-numeric:tabular-nums; }
-.big-time.bip { color:var(--orange); animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-@keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)} }
-
-.prog-wrap { height:5px; background:rgba(0,0,0,0.07); border-radius:3px; margin-top:0.75rem; overflow:hidden; }
-.prog-bar { height:100%; border-radius:3px; background:var(--orange); transition:width 0.95s linear, background 0.3s; }
-
-/* ── Next ── */
-.next-box { background:var(--card); border-radius:var(--radius-sm); padding:0.75rem 1rem; font-size:13px; color:var(--muted); margin-bottom:0.75rem; border:1px solid var(--border); display:flex; align-items:center; gap:8px; }
-.next-box i { font-size:15px; color:var(--orange); flex-shrink:0; }
-.next-box strong { color:var(--text); font-weight:600; }
-
-/* ── Buttons ── */
-.controls { display:flex; gap:8px; margin-bottom:1rem; }
-.btn { flex:1; padding:14px 10px; border-radius:var(--radius-sm); border:1.5px solid var(--border-med); background:var(--card); color:var(--text); font-family:var(--font-b); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.15s; -webkit-appearance:none; }
-.btn:active { transform:scale(0.97); }
-.btn-primary { background:var(--orange); border-color:var(--orange); color:#fff; }
-.btn-primary:active { background:var(--orange-dark); }
-.btn-dark { background:#111110; border-color:#111110; color:#fff; }
-.btn-icon { flex:0 0 52px; }
-
-/* ── Card ── */
 .card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); padding:1rem 1.25rem; margin-bottom:0.75rem; }
 .card-header { font-family:var(--font-d); font-size:16px; letter-spacing:0.05em; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; gap:8px; }
 .card-header i { font-size:16px; color:var(--orange); }
@@ -129,8 +126,7 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 .tt-amrap  { background:var(--blue-light); color:var(--blue); }
 .tt-custom { background:var(--amber-light); color:var(--amber); }
 
-/* ── Config inputs ── */
-.section-label { font-family:var(--font-d); font-size:15px; letter-spacing:0.06em; color:var(--muted); margin:1rem 0 0.5rem; }
+.section-label { font-family:var(--font-d); font-size:15px; letter-spacing:0.06em; color:var(--muted); margin:1.5rem 0 0.5rem; }
 .time-row { display:flex; align-items:center; gap:6px; }
 .t-input { width:50px; text-align:center; padding:7px 4px; border:1.5px solid var(--border-med); border-radius:var(--radius-xs); background:var(--bg); color:var(--text); font-family:var(--font-d); font-size:20px; letter-spacing:0.04em; -webkit-appearance:none; appearance:none; }
 .t-input:focus { outline:none; border-color:var(--orange); }
@@ -155,8 +151,11 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 .save-input:focus { outline:none; border-color:var(--orange); }
 .save-input::placeholder { color:var(--muted); }
 
-/* ── Library ── */
-.lib-item { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:0.875rem 1rem; display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.btn { padding:14px 10px; border-radius:var(--radius-sm); border:1.5px solid var(--border-med); background:var(--card); color:var(--text); font-family:var(--font-b); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.15s; -webkit-appearance:none; }
+.btn:active { transform:scale(0.97); }
+.btn-primary { background:var(--orange); border-color:var(--orange); color:#fff; }
+
+.lib-item { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:0.875rem 1rem; display:flex; align-items:center; gap:12px; margin-bottom:10px; margin-top: 1rem; }
 .lib-icon { width:44px; height:44px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
 .li-hiit   { background:var(--orange-dim); }
 .li-tabata { background:rgba(180,20,80,0.10); }
@@ -168,22 +167,17 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 .lib-meta { font-size:11px; color:var(--muted); margin-top:3px; }
 .lib-actions { display:flex; gap:6px; }
 .icon-btn { width:36px; height:36px; border-radius:var(--radius-xs); border:1.5px solid var(--border-med); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; transition:all 0.15s; -webkit-appearance:none; }
-.icon-btn:active { transform:scale(0.93); }
 .icon-btn.play:active { background:var(--orange-dim); color:var(--orange); border-color:var(--orange); }
 .icon-btn.del:active  { background:rgba(220,50,50,0.10); color:#DC3232; border-color:#DC3232; }
 
-.empty { text-align:center; padding:3rem 1rem; color:var(--muted); }
-.empty i { font-size:44px; display:block; margin-bottom:0.75rem; opacity:0.3; }
-.empty p { font-size:14px; line-height:1.5; }
+@keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)} }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- Header -->
   <div class="header">
     <div class="logo-wrap">
-      <!-- FitNat logo SVG: fundo preto, forma branca zigzag, círculo laranja -->
       <div class="logo-svg-box">
         <img src="./logo-branco.png" alt="FitNat" style="width:26px;height:auto;display:block;object-fit:contain;">
       </div>
@@ -199,48 +193,52 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
     </div>
   </div>
 
-  <!-- TIMER SCREEN -->
   <div class="screen active" id="screen-timer">
-    <div class="timer-card" id="timer-card">
-      <div class="phase-row">
-        <div class="phase-badge b-idle" id="phase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <span id="lbl-ready">PRONTO</span></div>
-        <div class="round-badge" id="round-badge"></div>
+    
+    <div class="timer-container">
+      
+      <div id="phase-current" class="phase-block bg-idle" style="flex: 1.3;">
+        <div class="top-actions">
+          <button class="icon-btn-dark" onclick="skipPhase()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="3" height="16"/></svg>
+          </button>
+          <button class="icon-btn-dark" onclick="resetTimer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+          </button>
+        </div>
+        
+        <h2 id="phase-title-current" class="phase-title">PRONTO</h2>
+        <div id="time-current" class="timer-massive">00:00</div>
       </div>
-      <span class="big-time" id="big-time">00:00</span>
-      <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:100%"></div></div>
+
+      <div id="phase-next" class="phase-block bg-work" style="flex: 0.7; border-top: 2px solid #111110;">
+        <h3 id="phase-title-next" class="phase-title" style="font-size: 6vw;">TREINAR</h3>
+        <div id="time-next" class="timer-massive" style="font-size: 22vw;">00:00</div>
+      </div>
+
     </div>
 
-    <div class="next-box">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      <span id="lbl-next-prefix">A seguir:</span> <strong id="next-text"></strong>
-    </div>
-
-    <div class="controls">
-      <button class="btn btn-primary" id="btn-start" onclick="toggleTimer()">
-        <svg id="ico-start" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg> <span id="lbl-start">Iniciar</span>
-      </button>
-      <button class="btn btn-icon" onclick="skipPhase()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="3" height="16"/></svg>
-      </button>
-      <button class="btn btn-icon btn-dark" onclick="resetTimer()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="6" height="6" rx="1"/><rect x="3" y="13" width="6" height="6" rx="1"/><line x1="13" y1="8" x2="21" y2="8"/><line x1="13" y1="16" x2="21" y2="16"/></svg> <span id="lbl-current-workout">Treino atual</span></div>
-      <div class="field-row"><span class="field-label" id="lbl-tipo">Tipo</span><span id="s-type" class="type-tag tt-hiit">HIIT</span></div>
-      <div class="field-row"><span class="field-label" id="lbl-trabalho">Trabalho</span><span class="field-val" id="s-work">40s</span></div>
-      <div class="field-row"><span class="field-label" id="lbl-descanso">Descanso</span><span class="field-val" id="s-rest">20s</span></div>
-      <div class="field-row"><span class="field-label" id="lbl-intervalo">Intervalo entre séries</span><span class="field-val" id="s-int">01:00</span></div>
-      <div class="field-row"><span class="field-label" id="lbl-series">Séries</span><span class="field-val" id="s-rounds">8</span></div>
-      <div class="field-row"><span class="field-label" id="lbl-exercicios">Exercícios por série</span><span class="field-val" id="s-ex">4</span></div>
+    <div class="timer-bottom">
+      <div class="timer-stats">
+        <div id="stat-rounds" class="timer-stats-val blue">0</div>
+        <div class="timer-stats-lbl" id="lbl-rondas-restantes">SÉRIES REST.</div>
+      </div>
+      
+      <div style="display:flex; flex-direction:column; align-items:center; transform: translateY(-26px);">
+        <button class="play-btn-massive" id="btn-start-massive" onclick="toggleTimer()">
+          <svg id="ico-start-massive" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:32px;height:32px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <span id="lbl-start-massive" class="play-btn-label">COMEÇAR</span>
+      </div>
+      
+      <div class="timer-stats">
+        <div id="stat-exercises" class="timer-stats-val">0</div>
+        <div class="timer-stats-lbl" id="lbl-ciclos-restantes">EX. REST.</div>
+      </div>
     </div>
   </div>
 
-  <!-- CONFIG SCREEN -->
   <div class="screen" id="screen-config">
-    <div style="height:0.5rem"></div>
     <div class="section-label" id="lbl-tipo-treino">TIPO DE TREINO</div>
     <div class="pill-tabs" id="type-pills">
       <button class="pill active" onclick="setType('hiit',this)">⚡ HIIT</button>
@@ -332,14 +330,11 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
     </button>
   </div>
 
-  <!-- LIBRARY SCREEN -->
   <div class="screen" id="screen-library">
-    <div style="height:0.5rem"></div>
     <div id="lib-list"></div>
   </div>
 </div>
 
-<!-- Nav -->
 <nav class="nav">
   <button class="nav-btn active" id="nav-timer" onclick="go('timer',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 14 15"/><line x1="9" y1="2" x2="15" y2="2"/><line x1="12" y1="2" x2="12" y2="5"/></svg><span id="nav-treino">Treino</span></button>
   <button class="nav-btn" id="nav-config" onclick="go('config',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span id="nav-config-lbl">Configurar</span></button>
@@ -352,8 +347,7 @@ const TR = {
   pt: {
     appsub:'Workouts Timer', ready:'PRONTO', prepare:'PREPARAR', work:'TRABALHO', rest:'DESCANSO',
     interval:'INTERVALO', done:'CONCLUÍDO', start:'Iniciar', pause:'Pausar', resume:'Continuar',
-    restart:'Reiniciar', nextPrefix:'A seguir:', nextWork:'Trabalho', nextRest:'Descanso',
-    nextInterval:'Intervalo', nextExercise:'Exercício', lastPhase:'Última fase!',
+    restart:'Reiniciar', comecar: 'COMEÇAR', rondasRest: 'SÉRIES REST.', ciclosRest: 'EX. REST.',
     complete:'Treino completo! 💪', navTimer:'Treino', navConfig:'Configurar', navLib:'Biblioteca',
     currentWorkout:'Treino atual', tipo:'Tipo', trabalho:'Trabalho', descanso:'Descanso',
     intervalLbl:'Intervalo entre séries', series:'Séries', exercicios:'Exercícios por série',
@@ -363,15 +357,12 @@ const TR = {
     salvarTit:'SALVAR NA BIBLIOTECA', salvar:'Salvar', salvo:'Salvo!', aplicar:'Aplicar e iniciar',
     placeholder:'Nome do treino…', emptyLib:'Nenhum treino salvo ainda.\nConfigure e salve na aba Configurar.',
     serieOf:'Série', de:'de', ex:'Ex', min:'min', serie:'Série',
-    defaults: [
-      {name:'Tabata Clássico'}, {name:'HIIT 40/20'}, {name:'EMOM 10 min'}, {name:'AMRAP 20 min'}
-    ]
+    defaults: [ {name:'Tabata Clássico'}, {name:'HIIT 40/20'}, {name:'EMOM 10 min'}, {name:'AMRAP 20 min'} ]
   },
   es: {
     appsub:'Workouts Timer', ready:'LISTO', prepare:'PREPARAR', work:'TRABAJO', rest:'DESCANSO',
     interval:'INTERVALO', done:'COMPLETADO', start:'Iniciar', pause:'Pausar', resume:'Continuar',
-    restart:'Reiniciar', nextPrefix:'A continuación:', nextWork:'Trabajo', nextRest:'Descanso',
-    nextInterval:'Intervalo', nextExercise:'Ejercicio', lastPhase:'¡Última fase!',
+    restart:'Reiniciar', comecar: 'EMPEZAR', rondasRest: 'RONDAS REST.', ciclosRest: 'EJERCICIOS',
     complete:'¡Entreno completo! 💪', navTimer:'Entreno', navConfig:'Configurar', navLib:'Biblioteca',
     currentWorkout:'Entreno actual', tipo:'Tipo', trabajo:'Trabajo', descanso:'Descanso',
     intervalLbl:'Intervalo entre series', series:'Series', exercicios:'Ejercicios por serie',
@@ -381,15 +372,12 @@ const TR = {
     salvarTit:'GUARDAR EN BIBLIOTECA', salvar:'Guardar', salvo:'¡Guardado!', aplicar:'Aplicar e iniciar',
     placeholder:'Nombre del entreno…', emptyLib:'Ningún entreno guardado.\nConfigura y guarda en la pestaña Configurar.',
     serieOf:'Serie', de:'de', ex:'Ej', min:'min', serie:'Serie',
-    defaults: [
-      {name:'Tabata Clásico'}, {name:'HIIT 40/20'}, {name:'EMOM 10 min'}, {name:'AMRAP 20 min'}
-    ]
+    defaults: [ {name:'Tabata Clásico'}, {name:'HIIT 40/20'}, {name:'EMOM 10 min'}, {name:'AMRAP 20 min'} ]
   },
   en: {
     appsub:'Workouts Timer', ready:'READY', prepare:'GET READY', work:'WORK', rest:'REST',
     interval:'INTERVAL', done:'DONE', start:'Start', pause:'Pause', resume:'Resume',
-    restart:'Restart', nextPrefix:'Up next:', nextWork:'Work', nextRest:'Rest',
-    nextInterval:'Interval', nextExercise:'Exercise', lastPhase:'Last phase!',
+    restart:'Restart', comecar: 'START', rondasRest: 'ROUNDS LEFT', ciclosRest: 'EX. LEFT',
     complete:'Workout complete! 💪', navTimer:'Workout', navConfig:'Settings', navLib:'Library',
     currentWorkout:'Current workout', tipo:'Type', trabalho:'Work', descanso:'Rest',
     intervalLbl:'Interval between rounds', series:'Rounds', exercicios:'Exercises per round',
@@ -399,9 +387,7 @@ const TR = {
     salvarTit:'SAVE TO LIBRARY', salvar:'Save', salvo:'Saved!', aplicar:'Apply & start',
     placeholder:'Workout name…', emptyLib:'No workouts saved yet.\nConfigure and save in the Settings tab.',
     serieOf:'Round', de:'of', ex:'Ex', min:'min', serie:'Round',
-    defaults: [
-      {name:'Classic Tabata'}, {name:'HIIT 40/20'}, {name:'EMOM 10 min'}, {name:'AMRAP 20 min'}
-    ]
+    defaults: [ {name:'Classic Tabata'}, {name:'HIIT 40/20'}, {name:'EMOM 10 min'}, {name:'AMRAP 20 min'} ]
   }
 };
 
@@ -414,22 +400,14 @@ function setLang(l) {
   document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
   document.documentElement.lang = l === 'pt' ? 'pt-BR' : l;
   applyTranslations();
-  syncSummary();
-  renderLib();
   updateUI();
 }
 
 function applyTranslations() {
   const map = {
     'lbl-appsub': t('appsub'),
-    'lbl-next-prefix': t('nextPrefix'),
-    'lbl-current-workout': t('currentWorkout'),
-    'lbl-tipo': t('tipo'),
-    'lbl-trabalho': t('trabalho'),
-    'lbl-descanso': t('descanso'),
-    'lbl-intervalo': t('intervalLbl'),
-    'lbl-series': t('series'),
-    'lbl-exercicios': t('exercicios'),
+    'lbl-rondas-restantes': t('rondasRest'),
+    'lbl-ciclos-restantes': t('ciclosRest'),
     'lbl-tipo-treino': t('tipoTreino'),
     'lbl-tempos': t('tempos'),
     'lbl-trabalho2': t('trabalho'),
@@ -459,9 +437,11 @@ function applyTranslations() {
     if (el) el.textContent = val;
   });
   document.getElementById('save-name').placeholder = t('placeholder');
-  // update start button
-  const startLbl = document.getElementById('lbl-start');
-  if (startLbl) startLbl.textContent = running ? t('pause') : (phase === 'idle' ? t('start') : t('resume'));
+  
+  const startLbl = document.getElementById('lbl-start-massive');
+  if (startLbl) {
+    startLbl.textContent = running ? t('pause').toUpperCase() : (phase === 'idle' ? t('comecar').toUpperCase() : (phase === 'done' ? t('restart').toUpperCase() : t('resume').toUpperCase()));
+  }
 }
 
 // ── Audio ─────────────────────────────────────────────────────────────────
@@ -503,7 +483,7 @@ function go(s,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(s==='library')renderLib();
-  if(s==='config')syncSummary();
+  if(s==='timer')updateUI();
 }
 
 // ── Type presets ──────────────────────────────────────────────────────────
@@ -518,27 +498,14 @@ function setType(t,btn){
   }
   document.getElementById('row-ex').style.display=t==='amrap'?'none':'flex';
   document.getElementById('row-int').style.display=t==='emom'?'none':'flex';
-  syncSummary();
 }
 
-function adj(k,d){vals[k]=Math.max(lims[k][0],Math.min(lims[k][1],vals[k]+d));document.getElementById('v-'+k).textContent=vals[k];syncSummary();}
+function adj(k,d){vals[k]=Math.max(lims[k][0],Math.min(lims[k][1],vals[k]+d));document.getElementById('v-'+k).textContent=vals[k];}
 function setVal(k,v){vals[k]=v;document.getElementById('v-'+k).textContent=v;}
-
-function syncSummary(){
-  const tp=cfg.type;
-  document.getElementById('s-type').textContent=tp.toUpperCase();
-  document.getElementById('s-type').className='type-tag tt-'+tp;
-  document.getElementById('s-work').textContent=fmt(gs('w-min','w-sec'));
-  document.getElementById('s-rest').textContent=fmt(gs('r-min','r-sec'));
-  document.getElementById('s-int').textContent=fmt(gs('i-min','i-sec'));
-  document.getElementById('s-rounds').textContent=vals.rounds;
-  document.getElementById('s-ex').textContent=vals.exercises;
-}
 
 function applyConfig(){
   cfg.workSec=gs('w-min','w-sec');cfg.restSec=gs('r-min','r-sec');cfg.intervalSec=gs('i-min','i-sec');
   cfg.rounds=vals.rounds;cfg.exercises=vals.exercises;cfg.prepare=vals.prepare;
-  syncSummary();
 }
 function applyAndGo(){applyConfig();go('timer',document.getElementById('nav-timer'));resetTimer();setTimeout(()=>{ac();startTimer();},80);}
 
@@ -564,15 +531,7 @@ function advEx(){
 
 function finish(){
   bipDone();phase='done';running=false;clearInterval(ticker);ticker=null;
-  const bt=document.getElementById('big-time');bt.textContent='✓';bt.classList.remove('bip');
-  document.getElementById('phase-badge').innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${t('done')}`;
-  document.getElementById('phase-badge').className='phase-badge b-done';
-  document.getElementById('timer-card').className='timer-card ph-done';
-  const startLbl=document.getElementById('lbl-start');if(startLbl)startLbl.textContent=t('restart');
-  document.getElementById('ico-start').outerHTML='<svg id="ico-start" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
-  document.getElementById('next-text').textContent=t('complete');
-  document.getElementById('prog-bar').style.width='0%';
-  document.getElementById('round-badge').textContent='';
+  updateUI();
 }
 
 function tick(){
@@ -580,68 +539,82 @@ function tick(){
   curTime--;
   if(curTime<=3&&curTime>0&&phase!=='prepare'){
     bipCountdown();
-    const el=document.getElementById('big-time');el.classList.add('bip');setTimeout(()=>el.classList.remove('bip'),280);
+    const el=document.getElementById('time-current');el.classList.add('bip');setTimeout(()=>el.classList.remove('bip'),280);
   }
   curTime<=0?nextPhase():updateUI();
 }
 
-const icoSVG={
-  bolt:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-  check:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-  moon:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
-  clock:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-};
 function updateUI(){
-  if(phase==='done')return;
-  document.getElementById('big-time').textContent=fmt(curTime);
+  if(phase==='done'){
+    document.getElementById('time-current').textContent = '✓';
+    document.getElementById('phase-title-current').textContent = t('done');
+    document.getElementById('phase-current').className = 'phase-block bg-done';
+    document.getElementById('phase-next').style.display = 'none';
+    document.getElementById('lbl-start-massive').textContent = t('restart').toUpperCase();
+    document.getElementById('ico-start-massive').outerHTML = '<svg id="ico-start-massive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+    return;
+  }
+
+  document.getElementById('phase-next').style.display = 'flex';
+  document.getElementById('time-current').textContent = fmt(curTime);
 
   const labels={prepare:t('prepare'),work:t('work'),rest:t('rest'),interval:t('interval'),done:t('done'),idle:t('ready')};
-  const bCls={prepare:'b-prepare',work:'b-work',rest:'b-rest',interval:'b-interval',done:'b-done',idle:'b-idle'};
-  const icons={prepare:'bolt',work:'bolt',rest:'moon',interval:'clock',done:'check',idle:'bolt'};
-  const cardPh={work:'',rest:'ph-rest',interval:'ph-interval',prepare:'ph-prepare',done:'ph-done',idle:''};
-  const pbg={work:'var(--orange)',rest:'var(--blue)',interval:'var(--amber)',prepare:'rgba(232,69,10,0.4)',done:'var(--green)'};
+  const bCls={prepare:'bg-prepare',work:'bg-work',rest:'bg-rest',interval:'bg-interval',done:'bg-done',idle:'bg-idle'};
 
-  const badge=document.getElementById('phase-badge');
-  badge.innerHTML=`${icoSVG[icons[phase]||'bolt']||icoSVG.bolt} ${labels[phase]||t('ready')}`;
-  badge.className='phase-badge '+(bCls[phase]||'b-idle');
-  document.getElementById('timer-card').className='timer-card '+(cardPh[phase]||'');
-  const pb=document.getElementById('prog-bar');
-  pb.style.background=pbg[phase]||'var(--orange)';
-  pb.style.width=phaseTotal>0?(curTime/phaseTotal*100)+'%':'100%';
+  document.getElementById('phase-title-current').textContent = labels[phase] || t('ready');
+  document.getElementById('phase-current').className = 'phase-block ' + (bCls[phase]||'bg-idle');
 
-  const exStr=cfg.exercises>1?` · ${t('ex')} ${curEx+1}/${cfg.exercises}`:'';
-  document.getElementById('round-badge').textContent=`${t('serieOf')} ${curRound+1} ${t('de')} ${cfg.rounds}${exStr}`;
-  document.getElementById('next-text').textContent=getNext();
-}
-
-function getNext(){
-  if(phase==='prepare')return`${t('nextWork')} ${fmt(cfg.workSec)}`;
-  if(phase==='work'){
-    if(cfg.restSec>0)return`${t('nextRest')} ${fmt(cfg.restSec)}`;
-    if(curEx<cfg.exercises-1)return`${t('nextExercise')} ${curEx+2}`;
-    if(curRound<cfg.rounds-1)return cfg.intervalSec>0?`${t('nextInterval')} ${fmt(cfg.intervalSec)}`:`${t('serieOf')} ${curRound+2}`;
-    return t('lastPhase');
+  // Discover Next Phase to show in Split View
+  let nPhase = 'work', nTime = cfg.workSec;
+  if (phase === 'prepare') { nPhase = 'work'; nTime = cfg.workSec; }
+  else if (phase === 'work') {
+      if (cfg.restSec > 0) { nPhase = 'rest'; nTime = cfg.restSec; }
+      else if (curEx < cfg.exercises - 1) { nPhase = 'work'; nTime = cfg.workSec; }
+      else if (curRound < cfg.rounds - 1) { 
+          if (cfg.intervalSec > 0) { nPhase = 'interval'; nTime = cfg.intervalSec; }
+          else { nPhase = 'work'; nTime = cfg.workSec; }
+      }
+      else { nPhase = 'done'; nTime = 0; }
+  } else if (phase === 'rest') {
+      if (curEx < cfg.exercises - 1) { nPhase = 'work'; nTime = cfg.workSec; }
+      else if (curRound < cfg.rounds - 1) {
+          if (cfg.intervalSec > 0) { nPhase = 'interval'; nTime = cfg.intervalSec; }
+          else { nPhase = 'work'; nTime = cfg.workSec; }
+      }
+      else { nPhase = 'done'; nTime = 0; }
+  } else if (phase === 'interval') { nPhase = 'work'; nTime = cfg.workSec; }
+  
+  if (phase === 'idle') {
+      document.getElementById('phase-title-next').textContent = t('prepare');
+      document.getElementById('time-next').textContent = fmt(cfg.prepare);
+      document.getElementById('phase-next').className = 'phase-block bg-prepare';
+  } else if (nPhase === 'done') {
+      document.getElementById('phase-title-next').textContent = t('done');
+      document.getElementById('time-next').textContent = '--:--';
+      document.getElementById('phase-next').className = 'phase-block bg-done';
+  } else {
+      document.getElementById('phase-title-next').textContent = labels[nPhase];
+      document.getElementById('time-next').textContent = fmt(nTime);
+      document.getElementById('phase-next').className = 'phase-block ' + bCls[nPhase];
   }
-  if(phase==='rest'){
-    if(curEx<cfg.exercises-1)return`${t('nextExercise')} ${curEx+2}`;
-    if(curRound<cfg.rounds-1)return cfg.intervalSec>0?`${t('nextInterval')} ${fmt(cfg.intervalSec)}`:`${t('serieOf')} ${curRound+2}`;
-    return t('lastPhase');
-  }
-  if(phase==='interval')return`${t('serieOf')} ${curRound+2} ${t('de')} ${cfg.rounds}`;
-  return'';
+
+  const rLeft = cfg.rounds - curRound;
+  const eLeft = cfg.exercises - curEx;
+  document.getElementById('stat-rounds').textContent = phase==='idle' ? cfg.rounds : Math.max(1, rLeft);
+  document.getElementById('stat-exercises').textContent = phase==='idle' ? cfg.exercises : Math.max(1, eLeft);
 }
 
 function startTimer(){
   if(phase==='idle'||phase==='done'){applyConfig();curRound=0;curEx=0;setPhase('prepare',cfg.prepare||10);}
   running=true;
-  const startLbl=document.getElementById('lbl-start');if(startLbl)startLbl.textContent=t('pause');
-  document.getElementById('ico-start').outerHTML='<svg id="ico-start" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  document.getElementById('lbl-start-massive').textContent=t('pause').toUpperCase();
+  document.getElementById('ico-start-massive').outerHTML='<svg id="ico-start-massive" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:28px;height:28px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
   ticker=setInterval(tick,1000);ac();
 }
 function pauseTimer(){
   running=false;clearInterval(ticker);ticker=null;
-  const startLbl=document.getElementById('lbl-start');if(startLbl)startLbl.textContent=t('resume');
-  document.getElementById('ico-start').outerHTML='<svg id="ico-start" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  document.getElementById('lbl-start-massive').textContent=t('resume').toUpperCase();
+  document.getElementById('ico-start-massive').outerHTML='<svg id="ico-start-massive" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:32px;height:32px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
 }
 function toggleTimer(){
   if(phase==='done'){resetTimer();return;}
@@ -652,17 +625,9 @@ function skipPhase(){if(phase==='idle')return;curTime=1;tick();}
 function resetTimer(){
   running=false;clearInterval(ticker);ticker=null;
   phase='idle';curTime=0;curRound=0;curEx=0;
-  document.getElementById('big-time').textContent='00:00';
-  document.getElementById('big-time').classList.remove('bip');
-  document.getElementById('phase-badge').innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> ${t('ready')}`;
-  document.getElementById('phase-badge').className='phase-badge b-idle';
-  document.getElementById('timer-card').className='timer-card';
-  document.getElementById('prog-bar').style.width='100%';
-  document.getElementById('prog-bar').style.background='var(--orange)';
-  const startLbl=document.getElementById('lbl-start');if(startLbl)startLbl.textContent=t('start');
-  document.getElementById('ico-start').outerHTML='<svg id="ico-start" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-  document.getElementById('next-text').textContent=`${t('nextWork')} ${fmt(cfg.workSec)}`;
-  document.getElementById('round-badge').textContent=`${t('serieOf')} 1 ${t('de')} ${cfg.rounds}`;
+  document.getElementById('lbl-start-massive').textContent=t('comecar').toUpperCase();
+  document.getElementById('ico-start-massive').outerHTML='<svg id="ico-start-massive" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:32px;height:32px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  updateUI();
 }
 
 // ── Library ───────────────────────────────────────────────────────────────
@@ -686,8 +651,8 @@ function flushLib(){try{localStorage.setItem('fitnat-wt-lib',JSON.stringify(lib)
 
 function metaStr(it){
   const p=[];
-  if(it.workSec)p.push(`${t('nextWork')}: ${fmt(it.workSec)}`);
-  if(it.restSec)p.push(`${t('nextRest')}: ${fmt(it.restSec)}`);
+  if(it.workSec)p.push(`${t('work')}: ${fmt(it.workSec)}`);
+  if(it.restSec)p.push(`${t('rest')}: ${fmt(it.restSec)}`);
   if(it.intervalSec)p.push(`${t('interval')}: ${fmt(it.intervalSec)}`);
   p.push(`${it.rounds} ${t('series').toLowerCase()}`);
   if(it.exercises>1)p.push(`${it.exercises} ex.`);
@@ -697,7 +662,7 @@ function metaStr(it){
 function renderLib(){
   const el=document.getElementById('lib-list');
   if(!lib.length){
-    el.innerHTML=`<div class="empty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="6" x2="12" y2="12"/></svg><p>${t('emptyLib').replace('\n','<br>')}</p></div>`;
+    el.innerHTML=`<div class="empty" style="text-align:center; padding:3rem 1rem; color:var(--muted);"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3; margin-bottom:0.75rem;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="6" x2="12" y2="12"/></svg><p style="font-size:14px; line-height:1.5;">${t('emptyLib').replace('\n','<br>')}</p></div>`;
     return;
   }
   el.innerHTML=lib.map((it,i)=>`
@@ -722,7 +687,7 @@ function loadItem(i){
   document.getElementById('w-min').value=Math.floor(it.workSec/60);document.getElementById('w-sec').value=it.workSec%60;
   document.getElementById('r-min').value=Math.floor(it.restSec/60);document.getElementById('r-sec').value=it.restSec%60;
   document.getElementById('i-min').value=Math.floor(it.intervalSec/60);document.getElementById('i-sec').value=it.intervalSec%60;
-  syncSummary();go('timer',document.getElementById('nav-timer'));resetTimer();
+  go('timer',document.getElementById('nav-timer'));resetTimer();
   setTimeout(()=>{ac();startTimer();},80);
 }
 
@@ -734,7 +699,6 @@ function saveLib(){
     intervalSec:gs('i-min','i-sec'),rounds:vals.rounds,exercises:vals.exercises,prepare:vals.prepare});
   flushLib();document.getElementById('save-name').value='';
   const btn=document.getElementById('btn-salvar'),lbl=document.getElementById('lbl-salvar');
-  const origStyle=btn.style.cssText, origTxt=lbl.textContent;
   btn.style.cssText='background:var(--orange);color:#fff;border-color:var(--orange);flex:0 0 auto;padding:13px 16px;gap:6px;';
   lbl.textContent=t('salvo');
   setTimeout(()=>{btn.style.cssText='flex:0 0 auto;padding:13px 16px;gap:6px;';lbl.textContent=t('salvar');},1600);
@@ -744,7 +708,6 @@ function saveLib(){
 document.addEventListener('touchstart',()=>ac(),{once:true,passive:true});
 document.addEventListener('click',()=>ac(),{once:true});
 applyTranslations();
-syncSummary();
 resetTimer();
 </script>
 
