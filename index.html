@@ -74,7 +74,7 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 .phase-block { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; transition: background 0.3s, color 0.3s; position: relative; }
 .bg-idle, .bg-prepare { background-color: var(--bg); color: var(--text); }
 .bg-work { background-color: var(--orange); color: #fff; }
-.bg-rest { background-color: var(--blue); color: #fff; }
+.bg-rest { background-color: #FFFFFF; color: #111110; }
 .bg-interval { background-color: var(--amber); color: #fff; }
 .bg-done { background-color: var(--green); color: #fff; }
 
@@ -96,10 +96,9 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 
 .timer-bottom { background: #111110; color: #fff; padding: 10px 20px 16px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; flex-shrink: 0; border-radius: 16px 16px 0 0; margin-top: -10px; z-index: 20; position: relative; }
 .timer-stats { text-align: center; }
-/* Séries restantes → laranja */
+/* Séries e Exercícios restantes → laranja, sem fundo */
 .timer-stats-val { font-size: 38px; font-family: var(--font-d); line-height: 1; color: var(--orange); }
-/* Exercícios restantes → branco com fundo ligeiramente destacado */
-.timer-stats-val.ex-val { color: #111110; background: #fff; border-radius: 8px; padding: 2px 10px; display: inline-block; }
+.timer-stats-val.ex-val { color: var(--orange); background: none; border-radius: 0; padding: 0; display: block; }
 .timer-stats-lbl { font-size: 10px; font-family: var(--font-b); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-top: 6px; }
 
 /* Botão play centralizado com grid */
