@@ -1,5 +1,5 @@
-// FitNat Workouts Timer — Service Worker
-const CACHE = 'fitnat-timer-v2';
+// FitNat Workouts Timer — Service Worker v3
+const CACHE = 'fitnat-timer-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -9,17 +9,19 @@ const ASSETS = [
   './icon-192x192.png',
   './icon-512x512.png',
   './logo-branco.png',
+  './logo-fitnattimer.png',
+  'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap',
 ];
 
-// Instalação: pré-cache de todos os assets
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE).then(cache =>
+      Promise.allSettled(ASSETS.map(url => cache.add(url).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
 
-// Activação: limpa caches antigos
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -29,9 +31,22 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch: serve do cache, fallback para rede
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        }
+        return response;
+      }).catch(() => {
+        if (e.request.destination === 'document') {
+          return caches.match('./index.html');
+        }
+      });
+    })
   );
 });
