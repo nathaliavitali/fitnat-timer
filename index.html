@@ -338,6 +338,21 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
         <div class="field-label" id="lbl-som-fase">Som início / fim de fase</div>
         <label class="toggle"><input type="checkbox" id="phase-sound" checked><span class="tog-slider"></span></label>
       </div>
+      <!-- Slider de volume -->
+      <div class="field-row" style="flex-direction:column; align-items:stretch; gap:10px; padding:12px 0 8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="field-label" id="lbl-volume">Volume dos bips</div>
+          <span id="vol-pct" style="font-family:var(--font-d);font-size:18px;color:var(--orange);letter-spacing:0.04em;">100%</span>
+        </div>
+        <input type="range" id="vol-slider" min="0.1" max="1.0" step="0.05" value="1.0"
+          oninput="setVolume(parseFloat(this.value))"
+          style="width:100%;height:6px;accent-color:var(--orange);cursor:pointer;">
+        <button onclick="ac();tone(1200,0.12,1.0);setTimeout(()=>tone(1320,0.18,1.0),130);"
+          style="width:100%;padding:10px;border-radius:var(--radius-sm);border:1.5px solid var(--orange);background:var(--orange-dim);color:var(--orange);font-family:var(--font-b);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <span id="lbl-testar-som">Testar som</span>
+        </button>
+      </div>
     </div>
 
     <div class="section-label" id="lbl-salvar-titulo">SALVAR NA BIBLIOTECA</div>
@@ -376,6 +391,7 @@ const TR = {
     tipoTreino:'TIPO DE TREINO', tempos:'Tempos', trabalhoDur:'Duração do exercício',
     descansoEntre:'Entre exercícios', intervalEntre:'Entre séries', estrutura:'Estrutura',
     sons:'Sons', bip:'Bip contagem regressiva (3s)', somFase:'Som início / fim de fase',
+    volume:'Volume dos bips', testarSom:'Testar som',
     salvarTit:'SALVAR NA BIBLIOTECA', salvar:'Salvar', salvo:'Salvo!', aplicar:'Aplicar e iniciar',
     placeholder:'Nome do treino…', emptyLib:'Nenhum treino salvo ainda.\nConfigure e salve na aba Configurar.',
     serieOf:'Série', de:'de', ex:'Ex', min:'min', serie:'Série',
@@ -391,6 +407,7 @@ const TR = {
     tipoTreino:'TIPO DE ENTRENO', tempos:'Tiempos', trabalhoDur:'Duración del ejercicio',
     descansoEntre:'Entre ejercicios', intervalEntre:'Entre series', estrutura:'Estructura',
     sons:'Sonidos', bip:'Bip cuenta regresiva (3s)', somFase:'Sonido inicio / fin de fase',
+    volume:'Volumen de los bips', testarSom:'Probar sonido',
     salvarTit:'GUARDAR EN BIBLIOTECA', salvar:'Guardar', salvo:'¡Guardado!', aplicar:'Aplicar e iniciar',
     placeholder:'Nombre del entreno…', emptyLib:'Ningún entreno guardado.\nConfigura y guarda en la pestaña Configurar.',
     serieOf:'Serie', de:'de', ex:'Ej', min:'min', serie:'Serie',
@@ -406,6 +423,7 @@ const TR = {
     tipoTreino:'WORKOUT TYPE', tempos:'Timing', trabalhoDur:'Exercise duration',
     descansoEntre:'Between exercises', intervalEntre:'Between rounds', estrutura:'Structure',
     sons:'Sounds', bip:'Countdown beep (3s)', somFase:'Phase start / end sound',
+    volume:'Beep volume', testarSom:'Test sound',
     salvarTit:'SAVE TO LIBRARY', salvar:'Save', salvo:'Saved!', aplicar:'Apply & start',
     placeholder:'Workout name…', emptyLib:'No workouts saved yet.\nConfigure and save in the Settings tab.',
     serieOf:'Round', de:'of', ex:'Ex', min:'min', serie:'Round',
@@ -444,6 +462,8 @@ function applyTranslations() {
     'lbl-sons': t('sons'),
     'lbl-bip': t('bip'),
     'lbl-som-fase': t('somFase'),
+    'lbl-volume': t('volume'),
+    'lbl-testar-som': t('testarSom'),
     'lbl-salvar-titulo': t('salvarTit'),
     'lbl-salvar': t('salvar'),
     'lbl-aplicar': t('aplicar'),
@@ -468,21 +488,41 @@ function applyTranslations() {
   }
 }
 
-// ── Audio — máximo volume com compressor dinâmico + harmónicos ────────────
+// ── Audio — volume máximo com sawtooth + uníssono + waveshaper + compressor ──
 let actx = null;
+let masterGain = null;
 let compressor = null;
+let userVolume = parseFloat(localStorage.getItem('fitnat-volume') || '1.0');
 
 function ac() {
   if (!actx) {
     try {
       actx = new (window.AudioContext || window.webkitAudioContext)();
-      // DynamicsCompressor maximiza o volume percebido sem distorção
+
+      // Master gain — controlado pelo slider
+      masterGain = actx.createGain();
+      masterGain.gain.value = userVolume;
+
+      // WaveShaper — distorção suave que aumenta densidade percebida
+      const ws = actx.createWaveShaper();
+      const curve = new Float32Array(256);
+      for (let i = 0; i < 256; i++) {
+        const x = (i * 2) / 256 - 1;
+        curve[i] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x));
+      }
+      ws.curve = curve;
+      ws.oversample = '4x';
+
+      // DynamicsCompressor — maximiza volume percebido sem clipar
       compressor = actx.createDynamicsCompressor();
-      compressor.threshold.value = -6;
-      compressor.knee.value = 3;
-      compressor.ratio.value = 4;
+      compressor.threshold.value = -3;
+      compressor.knee.value = 2;
+      compressor.ratio.value = 6;
       compressor.attack.value = 0.001;
-      compressor.release.value = 0.1;
+      compressor.release.value = 0.08;
+
+      masterGain.connect(ws);
+      ws.connect(compressor);
       compressor.connect(actx.destination);
     } catch(e) {}
   }
@@ -490,48 +530,78 @@ function ac() {
   return actx;
 }
 
-// Toca múltiplos osciladores sobrepostos (fundamental + harmónico) → som mais gordo e alto
-function tone(freq, dur, vol, tp) {
-  const ctx = ac(); if (!ctx || !compressor) return;
+function setVolume(val) {
+  userVolume = val;
+  localStorage.setItem('fitnat-volume', val);
+  if (masterGain) masterGain.gain.value = val;
+  // Atualizar display
+  const pct = document.getElementById('vol-pct');
+  if (pct) pct.textContent = Math.round(val * 100) + '%';
+}
+
+// Tom com 3 osciladores em uníssono (sawtooth + harmônicos) → som mais alto e presente
+function tone(freq, dur, vol) {
+  const ctx = ac(); if (!ctx || !masterGain) return;
+  const v = (vol || 1.0) * userVolume;
   try {
-    const out = compressor;
-    // Oscilador fundamental
+    // Clique de ataque — ruído branco curto → cérebro percebe como mais alto
+    const bufSize = ctx.sampleRate * 0.015;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+    const ng = ctx.createGain();
+    ng.gain.value = v * 0.4;
+    noise.connect(ng); ng.connect(masterGain);
+    noise.start(); noise.stop(ctx.currentTime + 0.015);
+
+    // Oscilador 1 — sawtooth fundamental (mais harmônicos que square)
     const o1 = ctx.createOscillator(), g1 = ctx.createGain();
-    o1.type = tp || 'square'; // square já tem harmónicos naturais
+    o1.type = 'sawtooth';
     o1.frequency.value = freq;
-    g1.gain.setValueAtTime(vol || 0.9, ctx.currentTime);
+    g1.gain.setValueAtTime(v, ctx.currentTime);
     g1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    o1.connect(g1); g1.connect(out);
+    o1.connect(g1); g1.connect(masterGain);
     o1.start(); o1.stop(ctx.currentTime + dur);
 
-    // Oitava abaixo — dá corpo e presença
+    // Oscilador 2 — levemente desafinado (+4 cents) → efeito chorus/uníssono
     const o2 = ctx.createOscillator(), g2 = ctx.createGain();
-    o2.type = 'sine';
-    o2.frequency.value = freq / 2;
-    g2.gain.setValueAtTime((vol || 0.9) * 0.5, ctx.currentTime);
+    o2.type = 'sawtooth';
+    o2.frequency.value = freq * 1.0023;
+    g2.gain.setValueAtTime(v * 0.7, ctx.currentTime);
     g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    o2.connect(g2); g2.connect(out);
+    o2.connect(g2); g2.connect(masterGain);
     o2.start(); o2.stop(ctx.currentTime + dur);
+
+    // Oscilador 3 — oitava abaixo → corpo e presença
+    const o3 = ctx.createOscillator(), g3 = ctx.createGain();
+    o3.type = 'square';
+    o3.frequency.value = freq / 2;
+    g3.gain.setValueAtTime(v * 0.5, ctx.currentTime);
+    g3.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o3.connect(g3); g3.connect(masterGain);
+    o3.start(); o3.stop(ctx.currentTime + dur);
   } catch(e) {}
 }
 
 function bipCountdown() {
   if (!document.getElementById('beep-on').checked) return;
-  tone(1200, 0.12, 0.95, 'square');
+  tone(1200, 0.12, 1.0);
 }
 function bipStart() {
   if (!document.getElementById('phase-sound').checked) return;
-  tone(880, 0.10, 0.9, 'square');
-  setTimeout(() => tone(1320, 0.18, 0.95, 'square'), 100);
+  tone(880, 0.10, 0.9);
+  setTimeout(() => tone(1320, 0.18, 1.0), 100);
 }
 function bipEnd() {
   if (!document.getElementById('phase-sound').checked) return;
-  tone(660, 0.10, 0.9, 'square');
-  setTimeout(() => tone(440, 0.25, 0.9, 'square'), 120);
+  tone(660, 0.10, 0.9);
+  setTimeout(() => tone(440, 0.25, 0.9), 120);
 }
 function bipDone() {
   [0, 150, 300, 480].forEach((d, i) =>
-    setTimeout(() => tone(660 + i * 220, 0.22, 0.95, 'square'), d)
+    setTimeout(() => tone(660 + i * 220, 0.22, 1.0), d)
   );
 }
 
@@ -830,6 +900,11 @@ document.addEventListener('click',()=>ac(),{once:true});
 applyTranslations();
 calcTotal();
 resetTimer();
+// Inicializar slider com valor guardado
+const slider = document.getElementById('vol-slider');
+if (slider) { slider.value = userVolume; }
+const pct = document.getElementById('vol-pct');
+if (pct) pct.textContent = Math.round(userVolume * 100) + '%';
 </script>
 
 <script>
