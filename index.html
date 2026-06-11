@@ -189,7 +189,7 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 .simple-fullscreen { display:none; position:fixed; inset:0; z-index:200; background:#111110; flex-direction:column; align-items:center; justify-content:center; padding:env(safe-area-inset-top,20px) 1.5rem env(safe-area-inset-bottom,20px); }
 .simple-fullscreen.active { display:flex; }
 .sf-label { font-family:var(--font-b); font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:#555; margin-bottom:1rem; }
-.sf-time  { font-family:var(--font-d); font-size:min(40vw,170px); line-height:1; letter-spacing:0.02em; color:#fff; font-variant-numeric:tabular-nums; transition:color 0.15s; }
+.sf-time  { font-family:var(--font-d); font-size:min(52vw,220px); line-height:1; letter-spacing:0.02em; color:#fff; font-variant-numeric:tabular-nums; transition:color 0.15s; }
 .sf-time.bip { color:var(--orange); animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
 .sf-prog-wrap { width:65%; height:5px; background:#2a2a2a; border-radius:3px; margin:2rem 0 3.5rem; overflow:hidden; }
 .sf-prog { height:100%; border-radius:3px; background:var(--orange); transition:width 0.95s linear; }
@@ -444,11 +444,11 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
       <div class="sf-prog" id="sf-prog" style="width:100%"></div>
     </div>
     <div class="sf-controls">
-      <!-- Voltar -->
-      <button class="sf-btn-back" onclick="sfBack()" title="Voltar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <!-- Zerar (reset) -->
+      <button class="sf-btn-back" onclick="simpleReset()" title="Zerar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       </button>
-      <!-- Pausar / Continuar -->
+      <!-- Pausar / Retomar -->
       <button class="sf-btn-main" id="sf-btn-main" onclick="sfToggle()">
         <svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
       </button>
@@ -1004,10 +1004,15 @@ function sfUpdateDisplay() {
 function sfOpenFullscreen() {
   document.getElementById('simple-fullscreen').classList.add('active');
   document.getElementById('sf-time').textContent = fmt(sCurTime);
-  document.getElementById('sf-prog').style.width = '100%';
-  // Botão no estado "pausar" (timer a correr)
-  document.getElementById('sf-ico').outerHTML =
-    '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  document.getElementById('sf-label').textContent = sRunning ? t('work') : 'PAUSADO';
+  const pct = sTotalSec > 0 ? (sCurTime / sTotalSec * 100) : 100;
+  document.getElementById('sf-prog').style.width = pct + '%';
+  // Esconder retomar se está a correr, mostrar se pausado
+  document.getElementById('sf-btn-resume').style.display = sRunning ? 'none' : 'flex';
+  // Ícone correto no botão principal
+  document.getElementById('sf-ico').outerHTML = sRunning
+    ? '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+    : '<svg id="sf-ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
 }
 
 function sfCloseFullscreen() {
@@ -1020,20 +1025,21 @@ function sfBack() {
 }
 
 function sfToggle() {
-  if (sRunning) {
-    sfPause();
-  } else {
-    sfResume();
-  }
+  sRunning ? sfPause() : sfResume();
 }
 
 function sfPause() {
   sRunning = false;
   clearInterval(sTicker); sTicker = null;
   releaseWakeLock();
+  // Botão principal vira reiniciar
   document.getElementById('sf-ico').outerHTML =
-    '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-  // Atualizar botão na tela simples também
+    '<svg id="sf-ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+  // Mostrar botão de retomar
+  document.getElementById('sf-btn-resume').style.display = 'flex';
+  // Label
+  document.getElementById('sf-label').textContent = 'PAUSADO';
+  // Atualizar botão na tela simples
   document.getElementById('lbl-simple-start').textContent = t('simpleResume');
   document.getElementById('ico-simple').outerHTML =
     '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
@@ -1043,8 +1049,13 @@ function sfResume() {
   sRunning = true;
   sTicker = setInterval(simpleTick, 1000);
   requestWakeLock();
+  // Esconder botão retomar
+  document.getElementById('sf-btn-resume').style.display = 'none';
+  // Botão principal vira pausar
   document.getElementById('sf-ico').outerHTML =
     '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  document.getElementById('sf-label').textContent = t('work');
+  // Atualizar botão na tela simples
   document.getElementById('lbl-simple-start').textContent = t('simplePause');
   document.getElementById('ico-simple').outerHTML =
     '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
@@ -1103,8 +1114,11 @@ function simpleReset() {
   sRunning = false;
   clearInterval(sTicker); sTicker = null;
   releaseWakeLock();
-  sfCloseFullscreen();
   sCurTime = sTotalSec;
+  // Reset displays
+  sfUpdateDisplay();
+  document.getElementById('sf-prog').style.background = 'var(--orange)';
+  document.getElementById('sf-label').textContent = t('simpleReady');
   document.getElementById('simple-time').textContent = fmt(sCurTime);
   document.getElementById('simple-prog').style.width = '100%';
   document.getElementById('simple-prog').style.background = 'var(--orange)';
@@ -1112,6 +1126,9 @@ function simpleReset() {
   document.getElementById('lbl-simple-start').textContent = t('simpleStart');
   document.getElementById('ico-simple').outerHTML =
     '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  // Botão principal volta a ser pausar (com ícone play pois está parado)
+  document.getElementById('sf-ico').outerHTML =
+    '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
 }
 
 function simpleTick() {
