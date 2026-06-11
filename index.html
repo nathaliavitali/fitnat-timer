@@ -184,6 +184,20 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
 
 .preset-btn { padding:6px 12px; border-radius:20px; border:1.5px solid var(--border-med); background:var(--bg); font-family:var(--font-b); font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; transition:all 0.15s; }
 .preset-btn:active, .preset-btn.active { background:var(--orange); border-color:var(--orange); color:#fff; }
+
+/* ── Timer Simples Fullscreen ── */
+.simple-fullscreen { display:none; position:fixed; inset:0; z-index:200; background:#111110; flex-direction:column; align-items:center; justify-content:center; padding:env(safe-area-inset-top,20px) 1.5rem env(safe-area-inset-bottom,20px); }
+.simple-fullscreen.active { display:flex; }
+.sf-label { font-family:var(--font-b); font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:#555; margin-bottom:1rem; }
+.sf-time  { font-family:var(--font-d); font-size:min(40vw,170px); line-height:1; letter-spacing:0.02em; color:#fff; font-variant-numeric:tabular-nums; transition:color 0.15s; }
+.sf-time.bip { color:var(--orange); animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.sf-prog-wrap { width:65%; height:5px; background:#2a2a2a; border-radius:3px; margin:2rem 0 3.5rem; overflow:hidden; }
+.sf-prog { height:100%; border-radius:3px; background:var(--orange); transition:width 0.95s linear; }
+.sf-controls { display:flex; gap:20px; align-items:center; }
+.sf-btn-main { width:76px; height:76px; border-radius:50%; background:var(--orange); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 28px rgba(232,69,10,0.45); transition:transform 0.1s; }
+.sf-btn-main:active { transform:scale(0.94); }
+.sf-btn-back { width:52px; height:52px; border-radius:50%; background:#1e1e1e; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#666; transition:all 0.15s; }
+.sf-btn-back:active { background:#2a2a2a; color:#fff; }
 </style>
 </head>
 <body>
@@ -422,6 +436,25 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
     </div>
   </div>
 
+  <!-- Timer Simples Fullscreen -->
+  <div class="simple-fullscreen" id="simple-fullscreen">
+    <div class="sf-label" id="sf-label">EM ANDAMENTO</div>
+    <div class="sf-time" id="sf-time">01:00</div>
+    <div class="sf-prog-wrap">
+      <div class="sf-prog" id="sf-prog" style="width:100%"></div>
+    </div>
+    <div class="sf-controls">
+      <!-- Voltar -->
+      <button class="sf-btn-back" onclick="sfBack()" title="Voltar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <!-- Pausar / Continuar -->
+      <button class="sf-btn-main" id="sf-btn-main" onclick="sfToggle()">
+        <svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <nav class="nav">
@@ -522,6 +555,7 @@ function applyTranslations() {
     'lbl-testar-som': t('testarSom'),
     'lbl-simple-title': t('simpleTitle'),
     'lbl-simple-dur':   t('simpleDur'),
+    'sf-label': sRunning ? t('work') : (sCurTime <= 0 ? t('simpleDone')+' 💪' : t('simpleReady')),
     'lbl-salvar-titulo': t('salvarTit'),
     'lbl-salvar': t('salvar'),
     'lbl-aplicar': t('aplicar'),
@@ -954,10 +988,67 @@ function saveLib(){
 }
 
 // ── Timer Simples ─────────────────────────────────────────────────────────
-let sTotalSec = 60;  // default 1min
+let sTotalSec = 60;
 let sCurTime  = 60;
 let sRunning  = false;
 let sTicker   = null;
+
+function sfUpdateDisplay() {
+  document.getElementById('sf-time').textContent = fmt(sCurTime);
+  document.getElementById('simple-time').textContent = fmt(sCurTime);
+  const pct = sTotalSec > 0 ? (sCurTime / sTotalSec * 100) : 100;
+  document.getElementById('sf-prog').style.width = pct + '%';
+  document.getElementById('simple-prog').style.width = pct + '%';
+}
+
+function sfOpenFullscreen() {
+  document.getElementById('simple-fullscreen').classList.add('active');
+  document.getElementById('sf-time').textContent = fmt(sCurTime);
+  document.getElementById('sf-prog').style.width = '100%';
+  // Botão no estado "pausar" (timer a correr)
+  document.getElementById('sf-ico').outerHTML =
+    '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+}
+
+function sfCloseFullscreen() {
+  document.getElementById('simple-fullscreen').classList.remove('active');
+}
+
+function sfBack() {
+  sfCloseFullscreen();
+  // Timer continua a correr em background, só fecha a tela
+}
+
+function sfToggle() {
+  if (sRunning) {
+    sfPause();
+  } else {
+    sfResume();
+  }
+}
+
+function sfPause() {
+  sRunning = false;
+  clearInterval(sTicker); sTicker = null;
+  releaseWakeLock();
+  document.getElementById('sf-ico').outerHTML =
+    '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  // Atualizar botão na tela simples também
+  document.getElementById('lbl-simple-start').textContent = t('simpleResume');
+  document.getElementById('ico-simple').outerHTML =
+    '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+}
+
+function sfResume() {
+  sRunning = true;
+  sTicker = setInterval(simpleTick, 1000);
+  requestWakeLock();
+  document.getElementById('sf-ico').outerHTML =
+    '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  document.getElementById('lbl-simple-start').textContent = t('simplePause');
+  document.getElementById('ico-simple').outerHTML =
+    '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+}
 
 function simpleSync() {
   const m = parseInt(document.getElementById('st-min').value) || 0;
@@ -974,7 +1065,6 @@ function simpleSync() {
 function simplePreset(m, s) {
   document.getElementById('st-min').value = m;
   document.getElementById('st-sec').value = s;
-  // Highlight preset ativo
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   simpleSync();
@@ -982,14 +1072,17 @@ function simplePreset(m, s) {
 
 function simpleToggle() {
   if (sCurTime <= 0) { simpleReset(); return; }
-  sRunning ? simplePause() : simpleStart();
+  if (!sRunning) {
+    simpleStart();
+  } else {
+    // Se já está a correr, abre o fullscreen
+    sfOpenFullscreen();
+  }
 }
 
 function simpleStart() {
   if (sTotalSec <= 0) return;
-  if (sCurTime <= 0 || sCurTime === sTotalSec) {
-    sCurTime = sTotalSec;
-  }
+  sCurTime = sTotalSec;
   sRunning = true;
   document.getElementById('simple-phase-lbl').textContent = t('work');
   document.getElementById('lbl-simple-start').textContent = t('simplePause');
@@ -998,21 +1091,19 @@ function simpleStart() {
   sTicker = setInterval(simpleTick, 1000);
   requestWakeLock();
   ac();
+  // Abrir fullscreen automaticamente ao iniciar
+  sfOpenFullscreen();
 }
 
 function simplePause() {
-  sRunning = false;
-  clearInterval(sTicker); sTicker = null;
-  releaseWakeLock();
-  document.getElementById('lbl-simple-start').textContent = t('simpleResume');
-  document.getElementById('ico-simple').outerHTML =
-    '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  sfPause();
 }
 
 function simpleReset() {
   sRunning = false;
   clearInterval(sTicker); sTicker = null;
   releaseWakeLock();
+  sfCloseFullscreen();
   sCurTime = sTotalSec;
   document.getElementById('simple-time').textContent = fmt(sCurTime);
   document.getElementById('simple-prog').style.width = '100%';
@@ -1030,30 +1121,39 @@ function simpleTick() {
   // Bip nos últimos 3s
   if (sCurTime <= 3 && sCurTime > 0 && document.getElementById('beep-on').checked) {
     bipCountdown();
-    const el = document.getElementById('simple-time');
-    el.style.color = 'var(--orange)';
-    setTimeout(() => el.style.color = '#fff', 280);
+    // Animar nos dois displays
+    ['simple-time', 'sf-time'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.add('bip'); setTimeout(() => el.classList.remove('bip'), 280); }
+    });
   }
 
   if (sCurTime <= 0) {
-    // Fim!
     bipDone();
     sRunning = false;
     clearInterval(sTicker); sTicker = null;
     releaseWakeLock();
-    document.getElementById('simple-time').textContent = '00:00';
+    // Display final
+    ['simple-time','sf-time'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '00:00';
+    });
     document.getElementById('simple-phase-lbl').textContent = t('simpleDone') + ' 💪';
+    document.getElementById('sf-label').textContent = t('simpleDone') + ' 💪';
     document.getElementById('simple-prog').style.width = '0%';
+    document.getElementById('sf-prog').style.width = '0%';
+    document.getElementById('sf-prog').style.background = 'var(--green)';
     document.getElementById('simple-prog').style.background = 'var(--green)';
+    // Botão de reiniciar no fullscreen
+    document.getElementById('sf-ico').outerHTML =
+      '<svg id="sf-ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
     document.getElementById('lbl-simple-start').textContent = t('restart');
     document.getElementById('ico-simple').outerHTML =
       '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
     return;
   }
 
-  document.getElementById('simple-time').textContent = fmt(sCurTime);
-  const pct = sTotalSec > 0 ? (sCurTime / sTotalSec * 100) : 100;
-  document.getElementById('simple-prog').style.width = pct + '%';
+  sfUpdateDisplay();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
