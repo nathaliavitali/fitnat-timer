@@ -453,6 +453,10 @@ body { font-family:var(--font-b); background:var(--bg); color:var(--text); min-h
         <svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
       </button>
     </div>
+    <!-- Botão voltar — só aparece quando termina -->
+    <button id="sf-btn-voltar" onclick="sfCloseFullscreen()" style="display:none;margin-top:2rem;padding:12px 32px;border-radius:var(--radius-sm);border:1.5px solid #333;background:transparent;color:#888;font-family:var(--font-b);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.03em;">
+      ← Voltar
+    </button>
   </div>
 
 </div>
@@ -1009,9 +1013,8 @@ function sfOpenFullscreen() {
   document.getElementById('sf-label').textContent = sRunning ? t('work') : 'PAUSADO';
   const pct = sTotalSec > 0 ? (sCurTime / sTotalSec * 100) : 100;
   document.getElementById('sf-prog').style.width = pct + '%';
-  // Esconder retomar se está a correr, mostrar se pausado
+  document.getElementById('sf-btn-voltar').style.display = 'none';
   document.getElementById('sf-btn-resume').style.display = sRunning ? 'none' : 'flex';
-  // Ícone correto no botão principal
   document.getElementById('sf-ico').outerHTML = sRunning
     ? '<svg id="sf-ico" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
     : '<svg id="sf-ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
@@ -1124,6 +1127,8 @@ function simpleReset() {
   clearInterval(sTicker); sTicker = null;
   releaseWakeLock();
   sCurTime = sTotalSec;
+  // Esconder botão voltar
+  document.getElementById('sf-btn-voltar').style.display = 'none';
   // Reset displays
   sfUpdateDisplay();
   document.getElementById('sf-prog').style.background = 'var(--orange)';
@@ -1205,6 +1210,8 @@ function simpleTick() {
     document.getElementById('lbl-simple-start').textContent = t('restart');
     document.getElementById('ico-simple').outerHTML =
       '<svg id="ico-simple" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+    // Mostrar botão voltar
+    document.getElementById('sf-btn-voltar').style.display = 'block';
     return;
   }
 
